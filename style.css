@@ -1,0 +1,250 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Header */
+.site-header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.nav {
+  display: flex;
+  gap: 14px;
+  font-size: 14px;
+}
+
+.nav a:hover {
+  color: var(--primary);
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #ffffff;
+  text-align: center;
+  padding: 48px 0;
+}
+
+.hero h1 {
+  font-size: 30px;
+  margin-bottom: 12px;
+}
+
+.hero p {
+  max-width: 600px;
+  margin: 0 auto 20px;
+  font-size: 16px;
+  opacity: 0.95;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  background: #ffffff;
+  color: var(--primary);
+  font-weight: bold;
+  padding: 12px 22px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sections */
+.section {
+  padding-top: 32px;
+  padding-bottom: 8px;
+}
+
+.section h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.card,
+.feature {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12);
+}
+
+.card .icon {
+  font-size: 30px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.card h3,
+.feature h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.card p,
+.feature p {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* Tool pages */
+.tool-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  margin: 20px 0;
+}
+
+.tool-box label {
+  display: block;
+  font-weight: bold;
+  margin: 12px 0 6px;
+}
+
+.tool-box input[type="file"],
+.tool-box input[type="number"],
+.tool-box input[type="range"],
+.tool-box select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px;
+  background: #ffffff;
+}
+
+.tool-box img,
+.tool-box canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.result {
+  margin-top: 14px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.article {
+  padding-bottom: 24px;
+}
+
+.article h2 {
+  font-size: 22px;
+  margin: 20px 0 8px;
+}
+
+.article p,
+.article li {
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.article ul,
+.article ol {
+  padding-left: 22px;
+}
+
+/* Footer */
+.site-footer {
+  background: #0f172a;
+  color: #cbd5e1;
+  text-align: center;
+  padding: 22px 0;
+  margin-top: 40px;
+  font-size: 14px;
+}
+
+.site-footer a {
+  margin: 0 8px;
+}
+
+/* Bigger screens */
+@media (min-width: 700px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .hero h1 {
+    font-size: 40px;
+  }
+}

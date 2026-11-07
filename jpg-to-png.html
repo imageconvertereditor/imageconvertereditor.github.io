@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JPG to PNG Converter - Convert JPG to PNG Online Free</title>
+  <meta name="description" content="Convert JPG or JPEG images to PNG online for free. Fast, private and works in your browser. No upload, no signup.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">Image Converter &amp; Editor</a>
+      <nav class="nav">
+        <a href="image-compressor.html">Compressor</a>
+        <a href="image-resizer.html">Resizer</a>
+        <a href="image-cropper.html">Cropper</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container article">
+    <h1 style="margin-top:20px;">JPG to PNG Converter</h1>
+    <p>Convert your JPG or JPEG photo to PNG format in one tap. Your image stays on your device and is never uploaded.</p>
+
+    <div class="tool-box">
+      <label for="file">Choose a JPG image</label>
+      <input type="file" id="file" accept="image/jpeg,image/jpg">
+
+      <button class="btn btn-primary" id="go" style="margin-top:14px;" disabled>Convert to PNG</button>
+
+      <div class="result" id="result"></div>
+      <img id="preview" alt="Converted PNG preview" style="display:none;">
+      <a id="download" class="btn btn-primary" style="display:none; margin-top:12px;" download="converted.png">Download PNG Image</a>
+    </div>
+
+    <h2>How to convert JPG to PNG</h2>
+    <ol>
+      <li>Tap "Choose a JPG image" and select a photo from your phone.</li>
+      <li>Tap "Convert to PNG".</li>
+      <li>Tap "Download PNG Image" to save the new file.</li>
+    </ol>
+
+    <h2>JPG vs PNG</h2>
+    <p>JPG files are smaller and good for photos. PNG files keep every detail without losing quality and support transparent backgrounds, which makes them useful for logos, screenshots and graphics. Converting a JPG to PNG does not add new detail, but it saves the image in a lossless format so it will not lose quality again when you edit and save it.</p>
+
+    <h2>Frequently Asked Questions</h2>
+    <h3>Is this JPG to PNG converter free?</h3>
+    <p>Yes, it is completely free with no signup and no watermark.</p>
+    <h3>Are my images uploaded to a server?</h3>
+    <p>No. The conversion happens inside your browser, so your photos stay private.</p>
+    <h3>Will the PNG file be bigger?</h3>
+    <p>Usually yes. PNG files are often larger than JPG files because they do not compress photos as much.</p>
+
+    <h2>More image tools</h2>
+    <p><a href="index.html" style="color:#2563eb;">See all image tools</a></p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 Image Converter &amp; Editor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    var fileInput = document.getElementById('file');
+    var goBtn = document.getElementById('go');
+    var result = document.getElementById('result');
+    var preview = document.getElementById('preview');
+    var download = document.getElementById('download');
+    var currentFile = null;
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(2) + ' MB';
+    }
+
+    fileInput.addEventListener('change', function () {
+      currentFile = fileInput.files[0] || null;
+      goBtn.disabled = !currentFile;
+      preview.style.display = 'none';
+      download.style.display = 'none';
+      if (currentFile) {
+        result.textContent = 'Selected: ' + currentFile.name + ' (' + formatSize(currentFile.size) + ')';
+      } else {
+        result.textContent = '';
+      }
+    });
+
+    goBtn.addEventListener('click', function () {
+      if (!currentFile) return;
+      result.textContent = 'Converting...';
+      var url = URL.createObjectURL(currentFile);
+      var img = new Image();
+
+      img.onload = function () {
+        var canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+
+        canvas.toBlob(function (blob) {
+          if (!blob) {
+            result.textContent = 'Sorry, this image could not be converted.';
+            return;
+          }
+          var newUrl = URL.createObjectURL(blob);
+          var baseName = currentFile.name.replace(/\.[^.]+$/, '');
+          preview.src = newUrl;
+          preview.style.display = 'block';
+          download.href = newUrl;
+          download.download = baseName + '.png';
+          download.style.display = 'inline-block';
+          result.textContent = 'Done! PNG size: ' + formatSize(blob.size);
+        }, 'image/png');
+      };
+
+      img.onerror = function () {
+        result.textContent = 'Sorry, this file is not a valid image.';
+      };
+
+      img.src = url;
+    });
+  </script>
+
+</body>
+</html>

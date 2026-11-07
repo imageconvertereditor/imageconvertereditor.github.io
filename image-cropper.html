@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image Cropper - Crop Images Online Free</title>
+  <meta name="description" content="Crop JPG, PNG and WebP images online for free. Choose the area you want and download the cropped image. No upload, no signup.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">Image Converter &amp; Editor</a>
+      <nav class="nav">
+        <a href="image-compressor.html">Compressor</a>
+        <a href="image-resizer.html">Resizer</a>
+        <a href="image-cropper.html">Cropper</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container article">
+    <h1 style="margin-top:20px;">Image Cropper</h1>
+    <p>Cut out the part of the image you need. Choose a photo, move the crop box over the area you want and download the result. Your image stays on your device.</p>
+
+    <div class="tool-box">
+      <label for="file">Choose an image</label>
+      <input type="file" id="file" accept="image/*">
+
+      <label for="aspect">Crop shape</label>
+      <select id="aspect">
+        <option value="0">Free</option>
+        <option value="1">Square (1:1)</option>
+        <option value="1.3333">4:3</option>
+        <option value="1.7778">16:9</option>
+      </select>
+
+      <label for="format">Output format</label>
+      <select id="format">
+        <option value="image/jpeg">JPG</option>
+        <option value="image/png">PNG</option>
+      </select>
+
+      <div id="editor" style="display:none; margin-top:14px;">
+        <p class="result">Drag the box to move it. Drag the blue corner to change its size.</p>
+        <div id="wrap" style="position:relative; display:inline-block; overflow:hidden; line-height:0; max-width:100%;">
+          <img id="src" alt="Image to crop" style="margin:0; display:block; max-width:100%; height:auto; border-radius:0; user-select:none; -webkit-user-drag:none;">
+          <div id="box" style="position:absolute; border:2px solid #ffffff; box-shadow:0 0 0 9999px rgba(0,0,0,0.55); touch-action:none; cursor:move;">
+            <div id="handle" style="position:absolute; right:-2px; bottom:-2px; width:34px; height:34px; background:#2563eb; border:2px solid #ffffff; touch-action:none; cursor:nwse-resize;"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="go" style="margin-top:14px;" disabled>Crop Image</button>
+
+      <div class="result" id="result"></div>
+      <img id="preview" alt="Cropped image preview" style="display:none;">
+      <a id="download" class="btn btn-primary" style="display:none; margin-top:12px;" download="cropped.jpg">Download Cropped Image</a>
+    </div>
+
+    <h2>How to crop an image</h2>
+    <ol>
+      <li>Tap "Choose an image" and select a photo from your phone.</li>
+      <li>Pick a crop shape, or keep it on Free.</li>
+      <li>Drag the box to the part you want. Drag the blue corner to make the box bigger or smaller.</li>
+      <li>Tap "Crop Image", then tap "Download Cropped Image".</li>
+    </ol>
+
+    <h2>Why crop images?</h2>
+    <p>Cropping removes the parts of a photo you do not need. It helps you focus on the main subject, fit profile pictures and social media posts, and reduce the file size.</p>
+
+    <h2>Frequently Asked Questions</h2>
+    <h3>Is this image cropper free?</h3>
+    <p>Yes, it is completely free with no signup and no watermark.</p>
+    <h3>Are my images uploaded to a server?</h3>
+    <p>No. Cropping happens inside your browser, so your photos stay private.</p>
+    <h3>Does cropping reduce image quality?</h3>
+    <p>No. The cropped part keeps its original pixels. Only the area outside the box is removed.</p>
+
+    <h2>More image tools</h2>
+    <p><a href="index.html" style="color:#2563eb;">See all image tools</a></p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 Image Converter &amp; Editor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    var fileInput = document.getElementById('file');
+    var aspectSel = document.getElementById('aspect');
+    var formatSel = document.getElementById('format');
+    var editor = document.getElementById('editor');
+    var srcImg = document.getElementById('src');
+    var box = document.getElementById('box');
+    var handle = document.getElementById('handle');
+    var goBtn = document.getElementById('go');
+    var result = document.getElementById('result');
+    var preview = document.getElementById('preview');
+    var download = document.getElementById('download');
+
+    var currentFile = null;
+    var objectUrl = null;
+    var bx = 0, by = 0, bw = 0, bh = 0;
+    var mode = null, startX = 0, startY = 0, ox = 0, oy = 0, ow = 0, oh = 0;
+    var MIN = 40;
+
+    function getAspect() {
+      return parseFloat(aspectSel.value) || 0;
+    }
+
+    function drawBox() {
+      box.style.left = bx + 'px';
+      box.style.top = by + 'px';
+      box.style.width = bw + 'px';
+      box.style.height = bh + 'px';
+    }
+
+    function fitSize(nw, nh) {
+      var dw = srcImg.clientWidth;
+      var dh = srcImg.clientHeight;
+      var a = getAspect();
+      nw = Math.max(MIN, nw);
+      if (a) { nh = nw / a; } else { nh = Math.max(MIN, nh); }
+      if (bx + nw > dw) { nw = dw - bx; if (a) { nh = nw / a; } }
+      if (by + nh > dh) { nh = dh - by; if (a) { nw = nh * a; } }
+      bw = nw;
+      bh = nh;
+    }
+
+    function initBox() {
+      var dw = srcImg.clientWidth;
+      var dh = srcImg.clientHeight;
+      if (!dw || !dh) return;
+      var a = getAspect();
+      var w = dw * 0.8;
+      var h = dh * 0.8;
+      if (a) {
+        h = w / a;
+        if (h > dh * 0.8) { h = dh * 0.8; w = h * a; }
+      }
+      bw = w;
+      bh = h;
+      bx = (dw - bw) / 2;
+      by = (dh - bh) / 2;
+      drawBox();
+    }
+
+    function startDrag(e, newMode) {
+      mode = newMode;
+      startX = e.clientX;
+      startY = e.clientY;
+      ox = bx; oy = by; ow = bw; oh = bh;
+    }
+
+    box.addEventListener('pointerdown', function (e) {
+      startDrag(e, 'move');
+      e.preventDefault();
+    });
+
+    handle.addEventListener('pointerdown', function (e) {
+      e.stopPropagation();
+      startDrag(e, 'resize');
+      e.preventDefault();
+    });
+
+    document.addEventListener('pointermove', function (e) {
+      if (!mode) return;
+      var dw = srcImg.clientWidth;
+      var dh = srcImg.clientHeight;
+      var dx = e.clientX - startX;
+      var dy = e.clientY - startY;
+      if (mode === 'move') {
+        bx = Math.min(Math.max(0, ox + dx), dw - bw);
+        by = Math.min(Math.max(0, oy + dy), dh - bh);
+      } else {
+        bx = ox;
+        by = oy;
+        fitSize(ow + dx, oh + dy);
+      }
+      drawBox();
+    });
+
+    document.addEventListener('pointerup', function () { mode = null; });
+    document.addEventListener('pointercancel', function () { mode = null; });
+
+    aspectSel.addEventListener('change', function () {
+      if (!currentFile) return;
+      fitSize(bw, bh);
+      drawBox();
+    });
+
+    window.addEventListener('resize', function () {
+      if (currentFile && srcImg.complete) initBox();
+    });
+
+    fileInput.addEventListener('change', function () {
+      currentFile = fileInput.files[0] || null;
+      goBtn.disabled = true;
+      preview.style.display = 'none';
+      download.style.display = 'none';
+      result.textContent = '';
+
+      if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+      if (!currentFile) { editor.style.display = 'none'; return; }
+
+      objectUrl = URL.createObjectURL(currentFile);
+      editor.style.display = 'block';
+      srcImg.onload = function () {
+        initBox();
+        goBtn.disabled = false;
+      };
+      srcImg.onerror = function () {
+        editor.style.display = 'none';
+        result.textContent = 'Sorry, this file is not a valid image.';
+      };
+      srcImg.src = objectUrl;
+    });
+
+    goBtn.addEventListener('click', function () {
+      if (!currentFile) return;
+      var scale = srcImg.naturalWidth / srcImg.clientWidth;
+      var sx = Math.round(bx * scale);
+      var sy = Math.round(by * scale);
+      var cw = Math.round(bw * scale);
+      var ch = Math.round(bh * scale);
+      if (sx + cw > srcImg.naturalWidth) { cw = srcImg.naturalWidth - sx; }
+      if (sy + ch > srcImg.naturalHeight) { ch = srcImg.naturalHeight - sy; }
+      if (cw < 1 || ch < 1) {
+        result.textContent = 'Please select a bigger area.';
+        return;
+      }
+
+      var canvas = document.createElement('canvas');
+      canvas.width = cw;
+      canvas.height = ch;
+      var ctx = canvas.getContext('2d');
+      if (formatSel.value === 'image/jpeg') {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, cw, ch);
+      }
+      ctx.drawImage(srcImg, sx, sy, cw, ch, 0, 0, cw, ch);
+
+      canvas.toBlob(function (blob) {
+        if (!blob) {
+          result.textContent = 'Sorry, this image could not be cropped.';
+          return;
+        }
+        var newUrl = URL.createObjectURL(blob);
+        var ext = formatSel.value === 'image/png' ? 'png' : 'jpg';
+        var baseName = currentFile.name.replace(/\.[^.]+$/, '');
+        preview.src = newUrl;
+        preview.style.display = 'block';
+        download.href = newUrl;
+        download.download = baseName + '-cropped.' + ext;
+        download.style.display = 'inline-block';
+        result.textContent = 'Done! Cropped size: ' + cw + ' x ' + ch + ' pixels';
+      }, formatSel.value, 0.92);
+    });
+  </script>
+
+</body>
+</html>

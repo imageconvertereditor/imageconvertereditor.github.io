@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image Resizer - Resize Images Online Free</title>
+  <meta name="description" content="Resize JPG, PNG and WebP images online for free. Change image width and height in pixels right in your browser. No upload, no signup.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">Image Converter &amp; Editor</a>
+      <nav class="nav">
+        <a href="image-compressor.html">Compressor</a>
+        <a href="image-resizer.html">Resizer</a>
+        <a href="image-cropper.html">Cropper</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container article">
+    <h1 style="margin-top:20px;">Image Resizer</h1>
+    <p>Change the width and height of your image in pixels. Choose a photo, enter the new size and download the resized image. Your image stays on your device.</p>
+
+    <div class="tool-box">
+      <label for="file">Choose an image</label>
+      <input type="file" id="file" accept="image/*">
+
+      <div id="info" class="result"></div>
+
+      <label for="width">Width (pixels)</label>
+      <input type="number" id="width" min="1" max="10000" placeholder="Width">
+
+      <label for="height">Height (pixels)</label>
+      <input type="number" id="height" min="1" max="10000" placeholder="Height">
+
+      <label style="margin-top:14px;">
+        <input type="checkbox" id="keep" checked> Keep aspect ratio
+      </label>
+
+      <label for="format">Output format</label>
+      <select id="format">
+        <option value="image/jpeg">JPG</option>
+        <option value="image/png">PNG</option>
+      </select>
+
+      <button class="btn btn-primary" id="go" style="margin-top:14px;" disabled>Resize Image</button>
+
+      <div class="result" id="result"></div>
+      <img id="preview" alt="Resized image preview" style="display:none;">
+      <a id="download" class="btn btn-primary" style="display:none; margin-top:12px;" download="resized.jpg">Download Resized Image</a>
+    </div>
+
+    <h2>How to resize an image</h2>
+    <ol>
+      <li>Tap "Choose an image" and select a photo from your phone.</li>
+      <li>Enter the new width or height. Keep "Keep aspect ratio" ticked to avoid stretching.</li>
+      <li>Pick JPG or PNG as the output format.</li>
+      <li>Tap "Resize Image" and then "Download Resized Image".</li>
+    </ol>
+
+    <h2>Why resize images?</h2>
+    <p>Many websites, forms and social media apps ask for a specific image size. Resizing also makes the file smaller, so it uploads and loads faster.</p>
+
+    <h2>Frequently Asked Questions</h2>
+    <h3>Is this image resizer free?</h3>
+    <p>Yes, it is completely free with no signup and no watermark.</p>
+    <h3>Are my images uploaded to a server?</h3>
+    <p>No. Resizing happens inside your browser, so your photos stay private.</p>
+    <h3>What does keep aspect ratio mean?</h3>
+    <p>It keeps the width and height in the same proportion, so the image does not look stretched or squeezed.</p>
+
+    <h2>More image tools</h2>
+    <p><a href="index.html" style="color:#2563eb;">See all image tools</a></p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 Image Converter &amp; Editor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    var fileInput = document.getElementById('file');
+    var widthInput = document.getElementById('width');
+    var heightInput = document.getElementById('height');
+    var keep = document.getElementById('keep');
+    var format = document.getElementById('format');
+    var goBtn = document.getElementById('go');
+    var info = document.getElementById('info');
+    var result = document.getElementById('result');
+    var preview = document.getElementById('preview');
+    var download = document.getElementById('download');
+    var currentFile = null;
+    var ratio = 1;
+
+    fileInput.addEventListener('change', function () {
+      currentFile = fileInput.files[0] || null;
+      goBtn.disabled = true;
+      preview.style.display = 'none';
+      download.style.display = 'none';
+      result.textContent = '';
+      if (!currentFile) { info.textContent = ''; return; }
+
+      var url = URL.createObjectURL(currentFile);
+      var img = new Image();
+      img.onload = function () {
+        ratio = img.naturalWidth / img.naturalHeight;
+        widthInput.value = img.naturalWidth;
+        heightInput.value = img.naturalHeight;
+        info.textContent = 'Original size: ' + img.naturalWidth + ' x ' + img.naturalHeight + ' pixels';
+        goBtn.disabled = false;
+        URL.revokeObjectURL(url);
+      };
+      img.onerror = function () {
+        info.textContent = 'Sorry, this file is not a valid image.';
+      };
+      img.src = url;
+    });
+
+    widthInput.addEventListener('input', function () {
+      if (keep.checked && widthInput.value) {
+        heightInput.value = Math.round(widthInput.value / ratio);
+      }
+    });
+
+    heightInput.addEventListener('input', function () {
+      if (keep.checked && heightInput.value) {
+        widthInput.value = Math.round(heightInput.value * ratio);
+      }
+    });
+
+    goBtn.addEventListener('click', function () {
+      var w = parseInt(widthInput.value, 10);
+      var h = parseInt(heightInput.value, 10);
+      if (!currentFile || !w || !h || w < 1 || h < 1 || w > 10000 || h > 10000) {
+        result.textContent = 'Please enter a width and height between 1 and 10000.';
+        return;
+      }
+
+      result.textContent = 'Resizing...';
+      var url = URL.createObjectURL(currentFile);
+      var img = new Image();
+
+      img.onload = function () {
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        if (format.value === 'image/jpeg') {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, w, h);
+        }
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+
+        canvas.toBlob(function (blob) {
+          if (!blob) {
+            result.textContent = 'Sorry, this image could not be resized. Try a smaller size.';
+            return;
+          }
+          var newUrl = URL.createObjectURL(blob);
+          var ext = format.value === 'image/png' ? 'png' : 'jpg';
+          var baseName = currentFile.name.replace(/\.[^.]+$/, '');
+          preview.src = newUrl;
+          preview.style.display = 'block';
+          download.href = newUrl;
+          download.download = baseName + '-' + w + 'x' + h + '.' + ext;
+          download.style.display = 'inline-block';
+          result.textContent = 'Done! New size: ' + w + ' x ' + h + ' pixels';
+        }, format.value, 0.92);
+      };
+
+      img.onerror = function () {
+        result.textContent = 'Sorry, this file is not a valid image.';
+      };
+
+      img.src = url;
+    });
+  </script>
+
+</body>
+</html>
