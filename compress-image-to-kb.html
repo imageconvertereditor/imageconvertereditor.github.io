@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compress Image to 20KB, 50KB, 100KB - Free Online Tool</title>
+  <meta name="description" content="Compress a JPG or PNG photo to an exact size like 20KB, 50KB or 100KB for free. Useful for online forms and exam photos. Works in your browser, no upload.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">Image Converter &amp; Editor</a>
+      <nav class="nav">
+        <a href="image-compressor.html">Compressor</a>
+        <a href="image-resizer.html">Resizer</a>
+        <a href="image-cropper.html">Cropper</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container article">
+    <h1 style="margin-top:20px;">Compress Image to 20KB, 50KB or 100KB</h1>
+    <p>Many online forms ask for a photo below a certain size. Choose your photo, type the size you need in KB and download a smaller JPG. Your image stays on your device.</p>
+
+    <div class="tool-box">
+      <label for="file">Choose an image</label>
+      <input type="file" id="file" accept="image/*">
+
+      <label for="target">Target size (KB)</label>
+      <input type="number" id="target" min="5" max="5000" value="100">
+
+      <p class="result" style="margin-top:8px;">Quick pick:</p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <button type="button" class="btn" style="border:1px solid #2563eb;" data-kb="20">20 KB</button>
+        <button type="button" class="btn" style="border:1px solid #2563eb;" data-kb="50">50 KB</button>
+        <button type="button" class="btn" style="border:1px solid #2563eb;" data-kb="100">100 KB</button>
+        <button type="button" class="btn" style="border:1px solid #2563eb;" data-kb="200">200 KB</button>
+      </div>
+
+      <button class="btn btn-primary" id="go" style="margin-top:14px;" disabled>Compress Image</button>
+
+      <div class="result" id="result"></div>
+      <img id="preview" alt="Compressed image preview" style="display:none;">
+      <a id="download" class="btn btn-primary" style="display:none; margin-top:12px;" download="compressed.jpg">Download Compressed Image</a>
+    </div>
+
+    <h2>How to compress an image to a specific size</h2>
+    <ol>
+      <li>Tap "Choose an image" and select your photo.</li>
+      <li>Type the size you need in KB, or tap 20, 50, 100 or 200 KB.</li>
+      <li>Tap "Compress Image". The tool lowers the quality and, if needed, the pixel size until the file fits.</li>
+      <li>Check the new size and tap "Download Compressed Image".</li>
+    </ol>
+
+    <h2>Tips for form photos</h2>
+    <ul>
+      <li>Check the size limit on the form and enter a number a little smaller, for example 95 KB for a 100 KB limit.</li>
+      <li>Very small limits like 20 KB make the photo smaller and softer. This is normal.</li>
+      <li>Some forms also need an exact width and height. Use the <a href="image-resizer.html" style="color:#2563eb;">Image Resizer</a> or the <a href="image-cropper.html" style="color:#2563eb;">Image Cropper</a> first.</li>
+    </ul>
+
+    <h2>Frequently Asked Questions</h2>
+    <h3>Is this tool free?</h3>
+    <p>Yes, it is completely free with no signup and no watermark.</p>
+    <h3>Are my photos uploaded to a server?</h3>
+    <p>No. Everything happens inside your browser, so your photos stay private.</p>
+    <h3>What if the tool cannot reach my target size?</h3>
+    <p>Very large photos or very small targets can be hard to reach. The tool shows the closest size it could get. Try a slightly higher target or crop the photo first.</p>
+    <h3>What format is the result?</h3>
+    <p>The result is a JPG file. Transparent areas of PNG images become white.</p>
+
+    <h2>More image tools</h2>
+    <ul>
+      <li><a href="image-compressor.html" style="color:#2563eb;">Image Compressor</a></li>
+      <li><a href="image-resizer.html" style="color:#2563eb;">Image Resizer</a></li>
+      <li><a href="jpg-to-png.html" style="color:#2563eb;">JPG to PNG</a></li>
+      <li><a href="png-to-jpg.html" style="color:#2563eb;">PNG to JPG</a></li>
+      <li><a href="image-cropper.html" style="color:#2563eb;">Image Cropper</a></li>
+      <li><a href="image-converter.html" style="color:#2563eb;">Image Converter</a></li>
+    </ul>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="contact.html">Contact</a>
+      </p>
+      <p>&copy; 2026 Image Converter &amp; Editor. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    var fileInput = document.getElementById('file');
+    var targetInput = document.getElementById('target');
+    var goBtn = document.getElementById('go');
+    var result = document.getElementById('result');
+    var preview = document.getElementById('preview');
+    var download = document.getElementById('download');
+    var currentFile = null;
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(2) + ' MB';
+    }
+
+    function toBlobP(canvas, q) {
+      return new Promise(function (resolve) {
+        canvas.toBlob(function (b) { resolve(b); }, 'image/jpeg', q);
+      });
+    }
+
+    function loadImage(file) {
+      return new Promise(function (resolve, reject) {
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () { URL.revokeObjectURL(url); resolve(img); };
+        img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('bad image')); };
+        img.src = url;
+      });
+    }
+
+    async function compressTo(img, targetBytes) {
+      var scales = [1, 0.85, 0.7, 0.55, 0.45, 0.35, 0.28, 0.2];
+      for (var i = 0; i < scales.length; i++) {
+        var s = scales[i];
+        var w = Math.max(1, Math.round(img.naturalWidth * s));
+        var h = Math.max(1, Math.round(img.naturalHeight * s));
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+
+        var last = (i === scales.length - 1);
+        var minQ = last ? 0.1 : 0.5;
+        var blob = await toBlobP(canvas, minQ);
+        if (!blob) continue;
+
+        if (blob.size > targetBytes) {
+          if (last) { return { blob: blob, w: w, h: h, ok: false }; }
+          continue;
+        }
+
+        var lo = minQ, hi = 0.95, good = blob;
+        for (var k = 0; k < 6; k++) {
+          var mid = (lo + hi) / 2;
+          var b = await toBlobP(canvas, mid);
+          if (b && b.size <= targetBytes) { good = b; lo = mid; } else { hi = mid; }
+        }
+        return { blob: good, w: w, h: h, ok: true };
+      }
+      return null;
+    }
+
+    document.querySelectorAll('[data-kb]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        targetInput.value = btn.getAttribute('data-kb');
+      });
+    });
+
+    fileInput.addEventListener('change', function () {
+      currentFile = fileInput.files[0] || null;
+      goBtn.disabled = !currentFile;
+      preview.style.display = 'none';
+      download.style.display = 'none';
+      if (currentFile) {
+        result.textContent = 'Selected: ' + currentFile.name + ' (' + formatSize(currentFile.size) + ')';
+      } else {
+        result.textContent = '';
+      }
+    });
+
+    goBtn.addEventListener('click', async function () {
+      if (!currentFile) return;
+      var kb = parseFloat(targetInput.value);
+      if (!kb || kb < 5 || kb > 5000) {
+        result.textContent = 'Please enter a target size between 5 and 5000 KB.';
+        return;
+      }
+      goBtn.disabled = true;
+      preview.style.display = 'none';
+      download.style.display = 'none';
+      result.textContent = 'Compressing... please wait.';
+
+      try {
+        var img = await loadImage(currentFile);
+        var res = await compressTo(img, Math.floor(kb * 1024));
+        if (!res || !res.blob) {
+          result.textContent = 'Sorry, this image could not be compressed.';
+          goBtn.disabled = false;
+          return;
+        }
+        var newUrl = URL.createObjectURL(res.blob);
+        var baseName = currentFile.name.replace(/\.[^.]+$/, '');
+        preview.src = newUrl;
+        preview.style.display = 'block';
+        download.href = newUrl;
+        download.download = baseName + '-' + Math.round(kb) + 'kb.jpg';
+        download.style.display = 'inline-block';
+
+        var text = 'Original: ' + formatSize(currentFile.size) +
+                   ' | New: ' + formatSize(res.blob.size) +
+                   ' | Image size: ' + res.w + ' x ' + res.h + ' pixels';
+        if (!res.ok) {
+          text += ' | Could not reach ' + Math.round(kb) + ' KB. This is the closest size. Try a higher target.';
+        } else if (res.w < img.naturalWidth) {
+          text += ' | The pixel size was reduced to reach your target.';
+        }
+        result.textContent = text;
+      } catch (e) {
+        result.textContent = 'Sorry, this file is not a valid image.';
+      }
+      goBtn.disabled = false;
+    });
+  </script>
+
+</body>
+</html>
